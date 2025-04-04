@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js 🔧
         uses: actions/setup-node@v3
@@ -24,11 +26,36 @@ jobs:
       - name: Install Dependencies 📦
         run: npm ci
 
+      - name: Create Copy Files Script 📝
+        run: |
+          cat > copyPublicFiles.js << 'EOF'
+          const fs = require('fs-extra');
+          const path = require('path');
+
+          // Ensure the songs directory exists in build
+          const sourceSongsDir = path.join(__dirname, 'public', 'songs');
+          const buildSongsDir = path.join(__dirname, 'build', 'songs');
+
+          try {
+            // Make sure the target directory exists
+            fs.ensureDirSync(buildSongsDir);
+
+            // Copy songs directory
+            fs.copySync(sourceSongsDir, buildSongsDir, { overwrite: true });
+            console.log('Songs directory copied to build folder successfully!');
+          } catch (err) {
+            console.error('Error copying files:', err);
+            process.exit(1);
+          }
+          EOF
+
       - name: Run Tests 🧪
         run: npm test -- --passWithNoTests
 
       - name: Build 🏗️
-        run: npm run build
+        run: |
+          npm run build
+          ls -la build/songs || echo "Songs directory not found in build"
         env:
           CI: false # This prevents the build from failing on warnings
 
@@ -37,3 +64,4 @@ jobs:
         with:
           folder: build # The folder the action should deploy
           branch: gh-pages # The branch the action should deploy to
+          clean: true # Automatically remove deleted files from the deploy branch

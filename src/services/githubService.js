@@ -14,22 +14,41 @@ export const getSongById = async (id) => {
       };
     }
 
-    // Use process.env.PUBLIC_URL to get the correct base path for GitHub Pages
-    const baseUrl = `${process.env.PUBLIC_URL}`;
+    // Get the correct base URL for GitHub Pages deployment
+    const baseUrl = process.env.PUBLIC_URL || "";
     const songPath = `${baseUrl}/songs/${id}.md`;
 
     console.log("Attempting to load song from:", songPath);
-    const response = await axios.get(songPath);
 
-    // Parse markdown content to extract metadata and content
-    const content = response.data;
-    const parsed = parseMarkdown(content);
+    try {
+      const response = await axios.get(songPath);
 
-    return {
-      id,
-      ...parsed,
-      source: "github",
-    };
+      // Parse markdown content to extract metadata and content
+      const content = response.data;
+      const parsed = parseMarkdown(content);
+
+      return {
+        id,
+        ...parsed,
+        source: "github",
+      };
+    } catch (fetchError) {
+      console.error(`Error fetching song ${id}:`, fetchError);
+
+      // Try with an alternative path for GitHub Pages
+      const altPath = `./songs/${id}.md`;
+      console.log("Attempting alternative path:", altPath);
+      const altResponse = await axios.get(altPath);
+
+      const content = altResponse.data;
+      const parsed = parseMarkdown(content);
+
+      return {
+        id,
+        ...parsed,
+        source: "github",
+      };
+    }
   } catch (error) {
     console.error(`Failed to load song with ID ${id}:`, error);
     return null;
@@ -38,18 +57,33 @@ export const getSongById = async (id) => {
 
 export const loadSongsFromGithub = async () => {
   try {
-    // Use process.env.PUBLIC_URL to get the correct base path for GitHub Pages
-    const baseUrl = `${process.env.PUBLIC_URL}`;
+    // Get the correct base URL for GitHub Pages deployment
+    const baseUrl = process.env.PUBLIC_URL || "";
     const indexPath = `${baseUrl}/songs/index.json`;
 
     console.log("Loading song index from:", indexPath);
-    const response = await axios.get(indexPath);
 
-    // Add source property to each song
-    return response.data.map((song) => ({
-      ...song,
-      source: "github", // Mark as GitHub sourced
-    }));
+    try {
+      const response = await axios.get(indexPath);
+
+      // Add source property to each song
+      return response.data.map((song) => ({
+        ...song,
+        source: "github", // Mark as GitHub sourced
+      }));
+    } catch (fetchError) {
+      console.error("Error fetching song index:", fetchError);
+
+      // Try with an alternative path for GitHub Pages
+      const altPath = `./songs/index.json`;
+      console.log("Attempting alternative path:", altPath);
+      const altResponse = await axios.get(altPath);
+
+      return altResponse.data.map((song) => ({
+        ...song,
+        source: "github",
+      }));
+    }
   } catch (error) {
     console.error("Failed to load songs:", error);
     return [];
