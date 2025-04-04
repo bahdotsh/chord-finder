@@ -14,18 +14,11 @@ export const getSongById = async (id) => {
       };
     }
 
-    // Construct a proper URL without double slashes
-    const baseUrl = window.location.origin;
-    const pathParts = window.location.pathname.split("/#")[0].split("/");
-    const repoName = pathParts[1] || ""; // Get repository name if any
+    // Use process.env.PUBLIC_URL to get the correct base path for GitHub Pages
+    const baseUrl = `${process.env.PUBLIC_URL}`;
+    const songPath = `${baseUrl}/songs/${id}.md`;
 
-    // Properly formatted URL
-    const songPath = `${baseUrl}/${repoName}/songs/${id}.md`.replace(
-      /([^:])\/+/g,
-      "$1/",
-    );
     console.log("Attempting to load song from:", songPath);
-
     const response = await axios.get(songPath);
 
     // Parse markdown content to extract metadata and content
@@ -43,21 +36,13 @@ export const getSongById = async (id) => {
   }
 };
 
-// Function to load songs from public folder
 export const loadSongsFromGithub = async () => {
   try {
-    // Construct a proper URL without double slashes
-    const baseUrl = window.location.origin;
-    const pathParts = window.location.pathname.split("/#")[0].split("/");
-    const repoName = pathParts[1] || ""; // Get repository name if any
+    // Use process.env.PUBLIC_URL to get the correct base path for GitHub Pages
+    const baseUrl = `${process.env.PUBLIC_URL}`;
+    const indexPath = `${baseUrl}/songs/index.json`;
 
-    // Properly formatted URL
-    const indexPath = `${baseUrl}/${repoName}/songs/index.json`.replace(
-      /([^:])\/+/g,
-      "$1/",
-    );
     console.log("Loading song index from:", indexPath);
-
     const response = await axios.get(indexPath);
 
     // Add source property to each song
