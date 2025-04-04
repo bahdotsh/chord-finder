@@ -1,0 +1,26 @@
+[
+  {
+    "id": "wonderful-tonight",
+    "title": "Wonderful Tonight",
+    "artist": "Eric Clapton",
+    "tags": ["rock", "slow", "beginner"]
+  },
+  {
+    "id": "hotel-california",
+    "title": "Hotel California",
+    "artist": "Eagles",
+    "tags": ["rock", "classic"]
+  },
+  {
+    "id": "imagine",
+    "title": "Imagine",
+    "artist": "John Lennon",
+    "tags": ["pop", "piano", "classic"]
+  },
+  {
+    "id": "hallelujah",
+    "title": "Hallelujah",
+    "artist": "Leonard Cohen",
+    "tags": ["folk", "acoustic"]
+  }
+]
