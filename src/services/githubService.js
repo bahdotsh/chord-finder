@@ -2,10 +2,19 @@ import axios from "axios";
 
 // Get the correct base URL for GitHub Pages deployment
 const getBaseUrl = () => {
-  // Check if we're in a GitHub Pages environment by looking at the URL
-  const isGitHubPages = window.location.hostname.includes("github.io");
-  // For GitHub Pages, use the repository name as the base path
-  return isGitHubPages ? "/chord-finder" : "";
+  const hostname = window.location.hostname;
+
+  // Check if we're on the custom domain or GitHub Pages
+  if (hostname === "gokuls.in" || hostname === "www.gokuls.in") {
+    // If we're on the root domain, the app might be in a subdirectory
+    return "/chord-finder";
+  } else if (hostname.includes("github.io")) {
+    // Standard GitHub Pages
+    return "/chord-finder";
+  }
+
+  // Local development or other environment
+  return "";
 };
 
 // Function to load songs from public folder
@@ -58,20 +67,18 @@ export const loadSongsFromGithub = async () => {
 
     console.log("Loading song index from:", indexPath);
 
-    try {
-      const response = await axios.get(indexPath);
+    const response = await axios.get(indexPath);
 
-      // Add source property to each song
-      return response.data.map((song) => ({
-        ...song,
-        source: "github", // Mark as GitHub sourced
-      }));
-    } catch (fetchError) {
-      console.error("Error fetching song index:", fetchError);
-      throw fetchError;
-    }
+    // Add source property to each song
+    return response.data.map((song) => ({
+      ...song,
+      source: "github", // Mark as GitHub sourced
+    }));
   } catch (error) {
     console.error("Failed to load songs:", error);
+    console.log("Current location:", window.location.href);
+    console.log("Using base path:", getBaseUrl());
+    // Return empty array instead of throwing to prevent app crash
     return [];
   }
 };

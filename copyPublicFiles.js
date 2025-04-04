@@ -16,6 +16,10 @@ try {
   fs.writeFileSync(path.join(__dirname, "build", ".nojekyll"), "");
 
   console.log("Songs directory copied to build folder successfully!");
+
+  // List the contents of the songs directory to verify
+  const files = fs.readdirSync(buildSongsDir);
+  console.log("Songs directory contents:", files);
 } catch (err) {
   console.error("Error copying files:", err);
   process.exit(1);
