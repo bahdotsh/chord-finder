@@ -42,7 +42,16 @@ jobs:
 
             // Copy songs directory
             fs.copySync(sourceSongsDir, buildSongsDir, { overwrite: true });
+
+            // Create a .nojekyll file to prevent GitHub Pages from ignoring files that start with underscore
+            fs.writeFileSync(path.join(__dirname, "build", ".nojekyll"), "");
+
             console.log('Songs directory copied to build folder successfully!');
+
+            // List the contents of the songs directory to verify
+            const files = fs.readdirSync(buildSongsDir);
+            console.log('Songs directory contents:', files);
+
           } catch (err) {
             console.error('Error copying files:', err);
             process.exit(1);
@@ -55,9 +64,22 @@ jobs:
       - name: Build 🏗️
         run: |
           npm run build
+          echo "Checking songs directory contents:"
           ls -la build/songs || echo "Songs directory not found in build"
+          echo "Checking index.json:"
+          cat build/songs/index.json || echo "index.json not found"
+          echo "Checking a sample song file:"
+          cat build/songs/wonderful-tonight.md || echo "wonderful-tonight.md not found"
         env:
           CI: false # This prevents the build from failing on warnings
+
+      - name: Verify Build Structure 🔍
+        run: |
+          echo "Build directory structure:"
+          find build -type f | sort
+
+          echo "Creating .nojekyll file to bypass Jekyll processing"
+          touch build/.nojekyll
 
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
@@ -65,3 +87,9 @@ jobs:
           folder: build # The folder the action should deploy
           branch: gh-pages # The branch the action should deploy to
           clean: true # Automatically remove deleted files from the deploy branch
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Post-deployment verification ✅
+        run: |
+          echo "Deployment completed. The site should be available at https://bahdotsh.github.io/chord-finder"
+          echo "If songs aren't loading, please check the browser console for errors."

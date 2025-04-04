@@ -31,5 +31,9 @@ export const shareViaFacebook = (song) => {
 
 // Generate a shareable link
 export const getShareableLink = (song) => {
-  return `${window.location.origin}${process.env.PUBLIC_URL}/#/song/${song.id}`;
+  // Check if we're in a GitHub Pages environment
+  const isGitHubPages = window.location.hostname.includes("github.io");
+  const baseUrl = isGitHubPages ? "/chord-finder" : "";
+
+  return `${window.location.origin}${baseUrl}/#/song/${song.id}`;
 };

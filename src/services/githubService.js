@@ -1,5 +1,13 @@
 import axios from "axios";
 
+// Get the correct base URL for GitHub Pages deployment
+const getBaseUrl = () => {
+  // Check if we're in a GitHub Pages environment by looking at the URL
+  const isGitHubPages = window.location.hostname.includes("github.io");
+  // For GitHub Pages, use the repository name as the base path
+  return isGitHubPages ? "/chord-finder" : "";
+};
+
 // Function to load songs from public folder
 export const getSongById = async (id) => {
   try {
@@ -14,8 +22,8 @@ export const getSongById = async (id) => {
       };
     }
 
-    // Get the correct base URL for GitHub Pages deployment
-    const baseUrl = process.env.PUBLIC_URL || "";
+    // Get base URL for GitHub Pages or local development
+    const baseUrl = getBaseUrl();
     const songPath = `${baseUrl}/songs/${id}.md`;
 
     console.log("Attempting to load song from:", songPath);
@@ -34,20 +42,7 @@ export const getSongById = async (id) => {
       };
     } catch (fetchError) {
       console.error(`Error fetching song ${id}:`, fetchError);
-
-      // Try with an alternative path for GitHub Pages
-      const altPath = `./songs/${id}.md`;
-      console.log("Attempting alternative path:", altPath);
-      const altResponse = await axios.get(altPath);
-
-      const content = altResponse.data;
-      const parsed = parseMarkdown(content);
-
-      return {
-        id,
-        ...parsed,
-        source: "github",
-      };
+      throw fetchError; // Let the error propagate up
     }
   } catch (error) {
     console.error(`Failed to load song with ID ${id}:`, error);
@@ -57,8 +52,8 @@ export const getSongById = async (id) => {
 
 export const loadSongsFromGithub = async () => {
   try {
-    // Get the correct base URL for GitHub Pages deployment
-    const baseUrl = process.env.PUBLIC_URL || "";
+    // Get base URL for GitHub Pages or local development
+    const baseUrl = getBaseUrl();
     const indexPath = `${baseUrl}/songs/index.json`;
 
     console.log("Loading song index from:", indexPath);
@@ -73,16 +68,7 @@ export const loadSongsFromGithub = async () => {
       }));
     } catch (fetchError) {
       console.error("Error fetching song index:", fetchError);
-
-      // Try with an alternative path for GitHub Pages
-      const altPath = `./songs/index.json`;
-      console.log("Attempting alternative path:", altPath);
-      const altResponse = await axios.get(altPath);
-
-      return altResponse.data.map((song) => ({
-        ...song,
-        source: "github",
-      }));
+      throw fetchError;
     }
   } catch (error) {
     console.error("Failed to load songs:", error);
