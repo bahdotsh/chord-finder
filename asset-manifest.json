@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/chord-finder/static/css/main.1f77f749.css",
-    "main.js": "/chord-finder/static/js/main.88fe587e.js",
+    "main.js": "/chord-finder/static/js/main.92042a11.js",
     "static/js/453.e2dba282.chunk.js": "/chord-finder/static/js/453.e2dba282.chunk.js",
     "index.html": "/chord-finder/index.html",
     "main.1f77f749.css.map": "/chord-finder/static/css/main.1f77f749.css.map",
-    "main.88fe587e.js.map": "/chord-finder/static/js/main.88fe587e.js.map",
+    "main.92042a11.js.map": "/chord-finder/static/js/main.92042a11.js.map",
     "453.e2dba282.chunk.js.map": "/chord-finder/static/js/453.e2dba282.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.1f77f749.css",
-    "static/js/main.88fe587e.js"
+    "static/js/main.92042a11.js"
   ]
 }
