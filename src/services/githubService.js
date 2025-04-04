@@ -1,25 +1,6 @@
 import axios from "axios";
 
 // Function to load songs from public folder
-export const loadSongsFromGithub = async () => {
-  try {
-    // Load song index from public folder
-    const response = await axios.get(
-      `${process.env.PUBLIC_URL}/songs/index.json`,
-    );
-
-    // Add source property to each song
-    return response.data.map((song) => ({
-      ...song,
-      source: "github", // Mark as GitHub sourced
-    }));
-  } catch (error) {
-    console.error("Failed to load songs:", error);
-    return [];
-  }
-};
-
-// Function to get a specific song by ID
 export const getSongById = async (id) => {
   try {
     // First check user-created songs (in localStorage)
@@ -33,10 +14,19 @@ export const getSongById = async (id) => {
       };
     }
 
-    // If not a user song, load from public folder
-    const response = await axios.get(
-      `${process.env.PUBLIC_URL}/songs/${id}.md`,
+    // Construct a proper URL without double slashes
+    const baseUrl = window.location.origin;
+    const pathParts = window.location.pathname.split("/#")[0].split("/");
+    const repoName = pathParts[1] || ""; // Get repository name if any
+
+    // Properly formatted URL
+    const songPath = `${baseUrl}/${repoName}/songs/${id}.md`.replace(
+      /([^:])\/+/g,
+      "$1/",
     );
+    console.log("Attempting to load song from:", songPath);
+
+    const response = await axios.get(songPath);
 
     // Parse markdown content to extract metadata and content
     const content = response.data;
@@ -50,6 +40,34 @@ export const getSongById = async (id) => {
   } catch (error) {
     console.error(`Failed to load song with ID ${id}:`, error);
     return null;
+  }
+};
+
+// Function to load songs from public folder
+export const loadSongsFromGithub = async () => {
+  try {
+    // Construct a proper URL without double slashes
+    const baseUrl = window.location.origin;
+    const pathParts = window.location.pathname.split("/#")[0].split("/");
+    const repoName = pathParts[1] || ""; // Get repository name if any
+
+    // Properly formatted URL
+    const indexPath = `${baseUrl}/${repoName}/songs/index.json`.replace(
+      /([^:])\/+/g,
+      "$1/",
+    );
+    console.log("Loading song index from:", indexPath);
+
+    const response = await axios.get(indexPath);
+
+    // Add source property to each song
+    return response.data.map((song) => ({
+      ...song,
+      source: "github", // Mark as GitHub sourced
+    }));
+  } catch (error) {
+    console.error("Failed to load songs:", error);
+    return [];
   }
 };
 
